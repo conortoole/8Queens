@@ -23,16 +23,20 @@ class main():
                 print("invalid input try again")
             else:
                 flag = False
+        #place first tile
         test = self.getTile(int(start[1]) - 1, num)
         self.setTile(test, value.queen)
+        #^
         self.forwardCheck(test)
         self.printBoard()
-        test = self.placeNext(test)
-        self.forwardCheck(test)
-        print()
-        print("-------------------")
-        print()
-        self.printBoard()
+        i = 1
+        while i < 20:
+            test = self.placeNext(test)
+            self.forwardCheck(test)
+            print("\n")
+            print("------------------------")
+            self.printBoard()
+            i += 1
 
     def generateTiles(self, size): #a graph of tile classes 
         chars = "$ABCDEFGH"
@@ -52,7 +56,7 @@ class main():
         for row in self.board:
             col = 0
             for tile in row: # the if checks for the edges of the board
-                if (tile.position[0] - 1 > 0):                    #top of board
+                if (tile.position[0] - 1 >= 0):                    #top of board
                     tile.N = self.board[tile.position[0] - 1][col]
                 if (col + 1 < self.size):                         #far right side of board
                     tile.E = self.board[tile.position[0]][col + 1]
@@ -60,11 +64,11 @@ class main():
                     tile.S = self.board[tile.position[0] + 1][col]
                 if (col - 1 > 0):                                 #left side of the board
                     tile.W = self.board[tile.position[0]][col - 1]
-                if ((tile.position[0] - 1 > 0) and (col + 1 < self.size)):#top right corner
+                if ((tile.position[0] - 1 >= 0) and (col + 1 < self.size)):#top right corner
                     tile.NE = self.board[tile.position[0] - 1][col + 1]
                 if ((tile.position[0] + 1 < self.size) and (col - 1 > 0)):#top left corner
                     tile.SW = self.board[tile.position[0] + 1][col - 1]
-                if ((tile.position[0] - 1 > 0) and (col - 1 > 0)):        #bottom left corner
+                if ((tile.position[0] - 1 >= 0) and (col - 1 > 0)):        #bottom left corner
                     tile.NW = self.board[tile.position[0] - 1][col - 1]
                 if ((tile.position[0] + 1 < self.size) and (col + 1 < self.size)):#bottom right corner
                     tile.SE = self.board[tile.position[0] + 1][col + 1]
@@ -119,26 +123,28 @@ class main():
             tempTile.setTile(value.avail)
             tempTile = tempTile.SE
 
-        tile.setTile(value.avail)
+        tile.setTile(value.inValid)
         tile = tile.previous
+        return tile
 
     def placeNext(self, tile):
         flag = True
         tempTile = tile.E
+        tempTile.previous = tile
         while tempTile.N != None:
             tempTile = tempTile.N
 
         while flag:
             if tempTile.value == value.avail:
                 tempTile.setTile(value.queen)
+                tempTile.previous = tile
                 return tempTile
             else:
                 if tempTile.S == None:
-                    self.backtrack(tile)
+                    tile = self.backtrack(tile)
                     return tile
                 else:
                     tempTile = tempTile.S
-                    return tile
 
 Main = main(8)
 Main.run()
