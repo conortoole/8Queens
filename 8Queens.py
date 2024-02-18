@@ -20,7 +20,7 @@ class main():
             let = let.upper()
             num = ord(let) - ord('A')
             #input handling
-            if (num > self.size - 1 or num < 0 or int(start[1]) > self.size or int(start[1]) - 1 < 0 or int(start[1]) - 1 > 1):
+            if (num > self.size - 1 or num < 0 or int(start[1]) > self.size or int(start[1]) != 1):
                 print("invalid input try again")
             else:
                 flag = False
