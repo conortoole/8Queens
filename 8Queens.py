@@ -14,13 +14,13 @@ class main():
         self.generateTiles(self.size)
         self.connectTiles()
         while(flag):
-            start = input("select a starting position (A1, B3 etc)")
+            start = input("select a starting position from row 1 (A1, B1 etc)")
             #conversion from input to correct ints
             let = str(start[0])
             let = let.upper()
             num = ord(let) - ord('A')
             #input handling
-            if (num > self.size - 1 or num < 0 or int(start[1]) > self.size or int(start[1]) - 1 < 0):
+            if (num > self.size - 1 or num < 0 or int(start[1]) > self.size or int(start[1]) - 1 < 0 or int(start[1]) - 1 > 1):
                 print("invalid input try again")
             else:
                 flag = False
