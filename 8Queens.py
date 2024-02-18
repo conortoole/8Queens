@@ -30,7 +30,7 @@ class main():
         #^
         self.forwardCheck(test)
 
-       # while test.position[0] != 7 or test.value != value.queen:
+        #while test.position[0] != 7 or test.value != value.queen:
         while test.S != None:
             test = self.placeNext(test)
             self.forwardCheck(test)
