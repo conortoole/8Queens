@@ -30,12 +30,13 @@ class main():
         self.forwardCheck(test)
         self.printBoard()
         i = 1
-        while i < 20:
+        while test != None:
             test = self.placeNext(test)
             self.forwardCheck(test)
             print("\n")
-            print("------------------------")
-            self.printBoard()
+            if test != None:
+                print("------------------------")
+                self.printBoard()
             i += 1
 
     def generateTiles(self, size): #a graph of tile classes 
@@ -60,17 +61,17 @@ class main():
                     tile.N = self.board[tile.position[0] - 1][col]
                 if (col + 1 < self.size):                         #far right side of board
                     tile.E = self.board[tile.position[0]][col + 1]
-                if (tile.position[0] + 1 < self.size):            #bottom of board
+                if (tile.position[0] + 1 < self.size - 1):            #bottom of board
                     tile.S = self.board[tile.position[0] + 1][col]
-                if (col - 1 > 0):                                 #left side of the board
+                if (col - 1 >= 0):                                 #left side of the board
                     tile.W = self.board[tile.position[0]][col - 1]
                 if ((tile.position[0] - 1 >= 0) and (col + 1 < self.size)):#top right corner
                     tile.NE = self.board[tile.position[0] - 1][col + 1]
-                if ((tile.position[0] + 1 < self.size) and (col - 1 > 0)):#top left corner
+                if ((tile.position[0] + 1 < self.size) and (col - 1 >= 0)):#top left corner
                     tile.SW = self.board[tile.position[0] + 1][col - 1]
-                if ((tile.position[0] - 1 >= 0) and (col - 1 > 0)):        #bottom left corner
+                if ((tile.position[0] - 1 >= 0) and (col - 1 >= 0)):        #bottom left corner
                     tile.NW = self.board[tile.position[0] - 1][col - 1]
-                if ((tile.position[0] + 1 < self.size) and (col + 1 < self.size)):#bottom right corner
+                if ((tile.position[0] + 1 < self.size - 1) and (col + 1 < self.size)):#bottom right corner
                     tile.SE = self.board[tile.position[0] + 1][col + 1]
                 col += 1
 
@@ -86,41 +87,57 @@ class main():
                     print("[X]", end="")
 
     def forwardCheck(self, tile):
-        #up diagonal
-        tempTile = tile.NE
+        if tile == None:
+            return
+        
+        #left diagonal
+        tempTile = tile.SW
         while tempTile != None:
             tempTile.setTile(value.inValid)
-            tempTile = tempTile.NE
+            if tempTile.previous == None: #### THERE IS A ISSUE WITH THIS PART 
+               tempTile.previous = tile # this will allow us to prevent overwriting during back tracking
+            tempTile = tempTile.SW
 
-        #to the right
-        tempTile = tile.E
+        #Down
+        tempTile = tile.S
         while tempTile != None:
             tempTile.setTile(value.inValid)
-            tempTile = tempTile.E
+            if tempTile.previous == None:
+                tempTile.previous = tile 
+            tempTile = tempTile.S
 
-        #down diagonal
+        #right diagonal  
         tempTile = tile.SE
         while tempTile != None:
             tempTile.setTile(value.inValid)
+            if tempTile.previous == None:
+                tempTile.previous = tile 
             tempTile = tempTile.SE
 
     def backtrack(self, tile):
-        #up diagonal
-        tempTile = tile.NE
+        #does the oppisate of place next removing X from any tiles related to the backtracked tile
+        #left diagonal
+        tempTile = tile.SW
         while tempTile != None:
-            tempTile.setTile(value.avail)
-            tempTile = tempTile.NE
+            if tempTile.previous == tile:
+                tempTile.setTile(value.avail)
+                tempTile.previous = None
+            tempTile = tempTile.SW
 
-        #to the right
-        tempTile = tile.E
+        #down
+        tempTile = tile.S
         while tempTile != None:
-            tempTile.setTile(value.avail)
-            tempTile = tempTile.E
+            if tempTile.previous == tile:
+                tempTile.setTile(value.avail)
+                tempTile.previous = None
+            tempTile = tempTile.S
 
-        #down diagonal
+        #right diagonal
         tempTile = tile.SE
         while tempTile != None:
-            tempTile.setTile(value.avail)
+            if tempTile.previous == tile:
+                tempTile.setTile(value.avail)
+                tempTile.previous = None
             tempTile = tempTile.SE
 
         tile.setTile(value.inValid)
@@ -129,22 +146,27 @@ class main():
 
     def placeNext(self, tile):
         flag = True
-        tempTile = tile.E
+        if tile.S == None:
+            print("\n")
+            print("Solution Found!")
+            return None
+        
+        tempTile = tile.S
         tempTile.previous = tile
-        while tempTile.N != None:
-            tempTile = tempTile.N
+        while tempTile.W != None: #gets to the left of the next row
+            tempTile = tempTile.W
 
         while flag:
-            if tempTile.value == value.avail:
+            if tempTile.value == value.avail: #places a queen in the first available spot
                 tempTile.setTile(value.queen)
                 tempTile.previous = tile
                 return tempTile
             else:
-                if tempTile.S == None:
+                if tempTile.E == None: #if there are no avail tiles then backtrack is called
                     tile = self.backtrack(tile)
                     return tile
                 else:
-                    tempTile = tempTile.S
+                    tempTile = tempTile.E #else move to the next tile to the right
 
 Main = main(8)
 Main.run()
