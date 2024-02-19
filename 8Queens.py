@@ -24,16 +24,27 @@ class main():
                 print("invalid input try again")
             else:
                 flag = False
+        flag = True
         #place first tile
         test = self.getTile(int(start[1]) - 1, num)
         self.setTile(test, value.queen)
         #^
-        self.forwardCheck(test)
-
-        #while test.position[0] != 7 or test.value != value.queen:
-        while test.S != None:
-            test = self.placeNext(test)
+        while(flag):
+            alg = input("Which algorithim would you like to use forwardChecking(F) or Directional Arc(D)???")
+            alg = alg.upper()
+            if alg == 'F' or alg == 'D':
+                flag = False
+       
+        if alg == 'F':
             self.forwardCheck(test)
+            #while test.position[0] != 7 or test.value != value.queen:
+            while test.S != None:
+                test = self.placeNext(test)
+                self.forwardCheck(test)
+        else:
+            while test.S != None:
+                test = self.directionalArc(test)
+
 
         print("Solution 1 with Queen 1 in Position " + start + ":")
         self.printBoard()
@@ -79,7 +90,6 @@ class main():
                 if ((tile.position[0] + 1 < self.size ) and (col + 1 < self.size)):#bottom right corner
                     tile.SE = self.board[tile.position[0] + 1][col + 1]
                 col += 1
-                #print(f"Tile: {tile.position}, N: {tile.N.position if tile.N else None}, E: {tile.E.position if tile.E else None}, S: {tile.S.position if tile.S else None}, W: {tile.W.position if tile.W else None}")
 
     def printBoard(self):
         for row in self.board:
@@ -96,7 +106,10 @@ class main():
         #if tile.position[0] == 7 and tile.value == value.queen:
         if tile.S == None:
             return
+        self.check(tile)
         
+
+    def check(self, tile):
         #left diagonal
         tempTile = tile.SW
         while tempTile != None:
@@ -125,6 +138,13 @@ class main():
         #does the oppisate of place next removing X from any tiles related to the backtracked tile
         self.bCounter += 1
         #left diagonal
+        self.clear(tile)
+
+        tile.setTile(value.inValid)
+        tile = tile.previous
+        return tile
+
+    def clear(self, tile):
         tempTile = tile.SW
         while tempTile != None:
             if tempTile.previous == tile:
@@ -148,9 +168,45 @@ class main():
                 tempTile.previous = None
             tempTile = tempTile.SE
 
-        tile.setTile(value.inValid)
-        tile = tile.previous
-        return tile
+    def directionalArc(self, tile):
+        #if tile.position[0] == 7 and tile.value == value.queen:
+        flag = True
+        if tile.S == None:
+            return
+        
+        tempTile = tile.S
+        #tempTile.previous = tile
+        while tempTile.W != None: #gets to the left of the next row
+            tempTile = tempTile.W
+
+        possibleTile = tempTile
+            
+        while flag:
+            if tempTile.value == value.avail: #places a queen in the first available spot
+                self.check(tempTile)
+                tempTile = possibleTile
+                tempTile = tempTile.S
+                while tempTile.W != None: #gets to the left of the next row
+                    tempTile = tempTile.W
+                temp2 = tempTile
+
+                while tempTile != None:
+                    if tempTile.value == value.avail:
+                        tempTile.setTile(value.queen)
+                        tempTile.previous = tile
+                        self.check(tempTile)
+                        return tempTile
+                    tempTile = tempTile.E
+
+                self.clear(tile)
+                tempTile = temp2.E
+            else:
+                if tempTile.E == None: #if there are no avail tiles then backtrack is called
+                    tile = self.backtrack(tile)
+                    return tile
+                else:
+                    tempTile = tempTile.E #else move to the next tile to the right
+                    possibleTile = tempTile
 
     def placeNext(self, tile):
         flag = True
