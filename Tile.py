@@ -13,6 +13,7 @@ class tile():
         self.SE = SE
         self.position = position
         self.previous = previous
+        self.children = []
 
     def setTile(self, value):
         self.value = value

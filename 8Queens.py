@@ -1,18 +1,23 @@
 from Tile import tile
 from Tile import value
+from Board import board
+from Results import results
 
 class main():
 
-    def __init__(self, size):
-        Tile = tile([0, 0], None, None, None, None, None, None, None, None, None)
-        self.size = size
-        self.board = [[Tile] * size for _ in range(size)]
-        self.bCounter = 0 #keeps track of back tracks
+    def __init__(self):
+        self.boards = []
+        self.fCounter = 0 #keeps track of back tracks
+        self.dCounter = 0 #keeps track of back tracks
+        self.visitedStack = []
+        self.results = []
+        self.rowCounter = 0
 
     def run(self):
         flag = True
-        self.generateTiles(self.size)
-        self.connectTiles()
+        Board = board(8) 
+        Board.generateTiles(Board.size)
+        Board.connectTiles()
         while(flag):
             start = input("select a starting position from row 1 (A1, B1 etc)")
             #conversion from input to correct ints
@@ -20,101 +25,70 @@ class main():
             let = let.upper()
             num = ord(let) - ord('A')
             #input handling
-            if (num > self.size - 1 or num < 0 or int(start[1]) > self.size or int(start[1]) != 1):
+            if (num > Board.size - 1 or num < 0 or int(start[1]) > Board.size or int(start[1]) != 1):
                 print("invalid input try again")
             else:
                 flag = False
         flag = True
         #place first tile
-        test = self.getTile(int(start[1]) - 1, num)
+        test = self.getTile(int(start[1]) - 1, num, Board)
         self.setTile(test, value.queen)
-        #^
-        while(flag):
-            alg = input("Which algorithim would you like to use forwardChecking(F) or Directional Arc(D)???")
-            alg = alg.upper()
-            if alg == 'F' or alg == 'D':
-                flag = False
-       
-        if alg == 'F':
-            self.forwardCheck(test)
-            #while test.position[0] != 7 or test.value != value.queen:
-            while test.S != None:
-                test = self.placeNext(test)
-                self.forwardCheck(test)
-        else:
-            while test.S != None:
-                test = self.directionalArc(test)
-
+        firstTest = test
 
         print("Solution 1 with Queen 1 in Position " + start + ":")
-        self.printBoard()
         print("\n\nThe positions of the Queens are:")
 
-        while test != None:
-            print("Row: " + str(test.position[0] + 1) + str(test.position[1]))
-            test = test.previous
-        print("\ntotal number of backtracks: ", self.bCounter)
+        #forward checking implementation
+        self.forwardCheck(test)
+        while test.S != None:
+            test = self.placeNext(test)
+            self.forwardCheck(test)
 
-    def generateTiles(self, size): #a graph of tile classes 
-        chars = "ABCDEFGH"
-        for row in range(size):
-            for col in range(size):
-                newTile = tile([row, chars[col]], None, None, None, None, None, None, None, None, None)
-                self.board[row][col] = newTile
+        self.printResults(test)
+        Board.clearBoard
+        
+        print("\ntotal number of backtracks before this solution was found: ")
+        print("Forward Checking: ", self.fCounter)
+        print("Directional Look Ahead: ", self.dCounter)
 
-    def getTile(self, row, col):
-        return self.board[row][col]
+        #directional arc implementation
+        # test2 = firstTest
+        # self.setTile(test2, value.queen)
+        # self.check(test2)
+        # while test2 != None and test2.S != None:
+        #     #self.check(test)
+        #     #Board.printBoard()
+        #     test2 = self.directionalArc(test2)
+
+        #self.boards[0].printBoard()
+        #self.results[1].print()
+        #self.boards[1].printBoard()
+        #self.printBoard(self.boards[0])
+        #self.printBoard(self.boards[1])
+
+    def printResults(self, tile):
+        while tile != None:
+            print("Row: " + str(tile.position[0] + 1) + str(tile.position[1]))
+            tile = tile.previous
+
+    def getTile(self, row, col, board):
+        return board.tiles[row][col]
     
     def setTile(self, tile, value):
         tile.setTile(value)
-
-    def connectTiles(self): #connecting the tiles so they know their neighbors
-        col = 0
-        for row in self.board:
-            col = 0
-            for tile in row: # the if checks for the edges of the board
-                if (tile.position[0] - 1 >= 0):                    #top of board
-                    tile.N = self.board[tile.position[0] - 1][col]
-                if (col + 1 < self.size):                         #far right side of board
-                    tile.E = self.board[tile.position[0]][col + 1]
-                if (tile.position[0] + 1 < self.size):            #bottom of board
-                    tile.S = self.board[tile.position[0] + 1][col]
-                if (col - 1 >= 0):                                 #left side of the board
-                    tile.W = self.board[tile.position[0]][col - 1]
-                if ((tile.position[0] - 1 >= 0) and (col + 1 < self.size)):#top right corner
-                    tile.NE = self.board[tile.position[0] - 1][col + 1]
-                if ((tile.position[0] + 1 < self.size) and (col - 1 >= 0)):#top left corner
-                    tile.SW = self.board[tile.position[0] + 1][col - 1]
-                if ((tile.position[0] - 1 >= 0) and (col - 1 >= 0)):        #bottom left corner
-                    tile.NW = self.board[tile.position[0] - 1][col - 1]
-                if ((tile.position[0] + 1 < self.size ) and (col + 1 < self.size)):#bottom right corner
-                    tile.SE = self.board[tile.position[0] + 1][col + 1]
-                col += 1
-
-    def printBoard(self):
-        for row in self.board:
-            print()
-            for tile in row:
-                if (tile.value == value.queen):
-                    print("[Q]", end="") # x is a queen
-                elif (tile.value == value.avail):
-                    print("[_]", end="")
-                else:
-                    print("[X]", end="")
 
     def forwardCheck(self, tile):
         #if tile.position[0] == 7 and tile.value == value.queen:
         if tile.S == None:
             return
         self.check(tile)
-        
 
     def check(self, tile):
         #left diagonal
         tempTile = tile.SW
         while tempTile != None:
             tempTile.setTile(value.inValid)
-            if tempTile.previous == None: #### THERE IS A ISSUE WITH THIS PART 
+            if tempTile.previous == None: 
                tempTile.previous = tile # this will allow us to prevent overwriting during back tracking
             tempTile = tempTile.SW
 
@@ -136,11 +110,10 @@ class main():
 
     def backtrack(self, tile):
         #does the oppisate of place next removing X from any tiles related to the backtracked tile
-        self.bCounter += 1
-        #left diagonal
         self.clear(tile)
-
         tile.setTile(value.inValid)
+        for child in tile.children:
+            child.value = value.avail
         tile = tile.previous
         return tile
 
@@ -170,44 +143,43 @@ class main():
 
     def directionalArc(self, tile):
         #if tile.position[0] == 7 and tile.value == value.queen:
-        flag = True
         if tile.S == None:
-            return
+            return tile
         
-        tempTile = tile.S
-        #tempTile.previous = tile
-        while tempTile.W != None: #gets to the left of the next row
-            tempTile = tempTile.W
-
-        possibleTile = tempTile
+        tempTile = self.getStartRow(tile)
             
-        while flag:
-            if tempTile.value == value.avail: #places a queen in the first available spot
-                self.check(tempTile)
-                tempTile = possibleTile
-                tempTile = tempTile.S
-                while tempTile.W != None: #gets to the left of the next row
-                    tempTile = tempTile.W
-                temp2 = tempTile
+        while tempTile is not None:
+            if tempTile.value == value.avail:
+                availableMove = self.checkIfValid(tempTile)
 
-                while tempTile != None:
-                    if tempTile.value == value.avail:
-                        tempTile.setTile(value.queen)
-                        tempTile.previous = tile
-                        self.check(tempTile)
-                        return tempTile
-                    tempTile = tempTile.E
-
-                self.clear(tile)
-                tempTile = temp2.E
+                if availableMove: #places a queen in the first available spot
+                    tempTile.value = value.queen
+                    tempTile.previous = tile
+                    tile.children.append(tempTile)
+                    self.check(tempTile)
+                    return tempTile    
+            
+            if tempTile.E is None: #if there are no avail tiles then backtrack is called
+                self.dCounter += 1
+                tile = self.backtrack(tile)
+                return tile
             else:
-                if tempTile.E == None: #if there are no avail tiles then backtrack is called
-                    tile = self.backtrack(tile)
-                    return tile
-                else:
-                    tempTile = tempTile.E #else move to the next tile to the right
-                    possibleTile = tempTile
+                tempTile = tempTile.E #else move to the next tile to the right
+        return tile
 
+    def checkIfValid(self, tile):
+        self.check(tile)
+        tile = self.getStartRow(tile)
+
+        while tile.E != None:
+            if tile.value == value.avail:
+                self.clear(tile)
+                return True
+            tile = tile.E
+
+        self.clear(tile)
+        return False
+    
     def placeNext(self, tile):
         flag = True
         if tile.S == None:
@@ -227,10 +199,20 @@ class main():
                 return tempTile
             else:
                 if tempTile.E == None: #if there are no avail tiles then backtrack is called
+                    self.fCounter += 1
                     tile = self.backtrack(tile)
                     return tile
                 else:
                     tempTile = tempTile.E #else move to the next tile to the right
 
-Main = main(8)
+    def getStartRow(self, tile):
+        if tile.S == None:
+            return tile
+        
+        tile = tile.S
+        while tile.W != None: #gets to the left of the next row
+            tile = tile.W
+        return tile
+
+Main = main()
 Main.run()
