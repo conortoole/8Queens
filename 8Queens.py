@@ -11,8 +11,8 @@ class main():
         self.dCounter = 0 #keeps track of back tracks
         self.visitedStack = []
         self.results = []
-        self.ForwardCounts = [0]
-        self.DARCCounts = [0]
+        self.ForwardCounts = []
+        self.DARCCounts = []
         self.EndTile = tile([11, 11], None, None, None, None, None, None, None, None, None)
 
     def run(self):
@@ -90,7 +90,7 @@ class main():
 
             print("\n\ntotal number of backtracks before this solution was found: ")
             print("Forward Checking: ", self.ForwardCounts[i])
-            if len(self.DARCCounts) <= i:
+            if len(self.DARCCounts) < i:
                 print("Directional Look Ahead: no solution")
             else:
                 print("Directional Look Ahead: ", self.DARCCounts[i])
