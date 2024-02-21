@@ -2,82 +2,11 @@
 To run this program make sure the files are all in the same folder and navigate to 8Queens.py
 Then click run without debugging and answer the questions in the terminal
 
-# Example output for a1:
+#implementation
+This code used a series of tile classes that contained their parent (previous) their children and their neighboring tiles. These neighbor tiles are stored as cardinal directions (N,S,E,W,NE,SE,SW,NW). This allows the program to quickly traverse in any direction similar to how the queen would move on a chess board. 
 
-select a starting position from row 1 (A1, B1 etc)a1
+# Example output for c1:
 
-Solution 1 with Queen 1 in Position 1A:
-
-The positions of the Queens are:
-Row: 1A
-Row: 2E
-Row: 3H
-Row: 4F
-Row: 5C
-Row: 6G
-Row: 7B
-Row: 8D
-
-
-total number of backtracks before this solution was found:
-Forward Checking:  105
-Directional Look Ahead:  61
-
-Solution 1 with Queen 1 in Position 1A:
-
-The positions of the Queens are:
-Row: 1A
-Row: 2F
-Row: 3H
-Row: 4C
-Row: 5G
-Row: 6D
-Row: 7B
-Row: 8E
-
-
-total number of backtracks before this solution was found:
-Forward Checking:  33
-Directional Look Ahead:  21
-
-Solution 1 with Queen 1 in Position 1A:
-
-The positions of the Queens are:
-Row: 1A
-Row: 2G
-Row: 3D
-Row: 4F
-Row: 5H
-Row: 6B
-Row: 7E
-Row: 8C
-
-
-total number of backtracks before this solution was found:
-Forward Checking:  25
-Directional Look Ahead:  14
-
-Solution 1 with Queen 1 in Position 1A:
-
-The positions of the Queens are:
-Row: 1A
-Row: 2G
-Row: 3E
-Row: 4H
-Row: 5B
-Row: 6D
-Row: 7F
-Row: 8C
-
-
-total number of backtracks before this solution was found:
-Forward Checking:  17
-Directional Look Ahead:  11
-Total numbers of backtracks before this solution was found:
-Forward Checking: 223
-Directional Look Ahead: 136
-PS C:\Users\toole\Documents\HW\HW 2024\8Queens>  c:; cd 'c:\Users\toole\Documents\HW\HW 2024\8Queens'; 
-& 'c:\Users\toole\AppData\Local\Microsoft\WindowsApps\python3.10.exe' 'c:\Users\toole\.vscode\extensions\ms-python.debugpy-2024.0.0-win32-x64\bundled\libs\debugpy\adapter/../..\debugpy\launcher' '55899' '--' 'c:\Users\toole\Documents\HW\HW 2024\8Queens\Constraints_Toole.py'
 select a starting position from row 1 (A1, B1 etc)c1
 
 Solution 1 with Queen 1 in Position 1C:
