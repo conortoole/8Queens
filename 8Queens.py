@@ -90,7 +90,7 @@ class main():
 
             print("\n\ntotal number of backtracks before this solution was found: ")
             print("Forward Checking: ", self.ForwardCounts[i])
-            if len(self.DARCCounts) < i:
+            if len(self.DARCCounts) <= i :
                 print("Directional Look Ahead: no solution")
             else:
                 print("Directional Look Ahead: ", self.DARCCounts[i])
