@@ -1,8 +1,8 @@
-# 8 Queens
+## 8 Queens
 To run this program make sure the files are all in the same folder and navigate to 8Queens.py
 Then click run without debugging and answer the questions in the terminal
 
-#implementation
+# implementation
 This code used a series of tile classes that contained their parent (previous) their children and their neighboring tiles. These neighbor tiles are stored as cardinal directions (N,S,E,W,NE,SE,SW,NW). This allows the program to quickly traverse in any direction similar to how the queen would move on a chess board. 
 
 # Example output for c1:
