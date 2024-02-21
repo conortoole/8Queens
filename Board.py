@@ -27,13 +27,13 @@ class board():
                     tile.S = self.tiles[tile.position[0] + 1][col]
                 if (col - 1 >= 0):                                 #left side of the board
                     tile.W = self.tiles[tile.position[0]][col - 1]
-                if ((tile.position[0] - 1 >= 0) and (col + 1 < self.size)):#top right corner
-                    tile.NE = self.tiles[tile.position[0] - 1][col + 1]
+                if ((tile.position[0] - 1 >= 0) and (col < self.size)):#top right corner
+                    tile.NE = self.tiles[tile.position[0] - 1][col]
                 if ((tile.position[0] + 1 < self.size) and (col - 1 >= 0)):#top left corner
                     tile.SW = self.tiles[tile.position[0] + 1][col - 1]
                 if ((tile.position[0] - 1 >= 0) and (col - 1 >= 0)):        #bottom left corner
                     tile.NW = self.tiles[tile.position[0] - 1][col - 1]
-                if ((tile.position[0] + 1 < self.size ) and (col + 1 < self.size)):#bottom right corner
+                if ((tile.position[0] + 1 < self.size ) and (col + 1< self.size)):#bottom right corner
                     tile.SE = self.tiles[tile.position[0] + 1][col + 1]
                 col += 1
     
@@ -54,4 +54,4 @@ class board():
             for item in row:
                 item.value = value.avail
                 item.previous = None
-                item.children = None
+                item.children = []

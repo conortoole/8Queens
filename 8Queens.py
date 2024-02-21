@@ -1,7 +1,7 @@
 from Tile import tile
 from Tile import value
 from Board import board
-from Results import results
+import copy
 
 class main():
 
@@ -11,7 +11,9 @@ class main():
         self.dCounter = 0 #keeps track of back tracks
         self.visitedStack = []
         self.results = []
-        self.rowCounter = 0
+        self.ForwardCounts = [0]
+        self.DARCCounts = [0]
+        self.EndTile = tile([11, 11], None, None, None, None, None, None, None, None, None)
 
     def run(self):
         flag = True
@@ -31,45 +33,82 @@ class main():
                 flag = False
         flag = True
         #place first tile
-        test = self.getTile(int(start[1]) - 1, num, Board)
-        self.setTile(test, value.queen)
-        firstTest = test
-
-        print("Solution 1 with Queen 1 in Position " + start + ":")
-        print("\n\nThe positions of the Queens are:")
-
-        #forward checking implementation
-        self.forwardCheck(test)
-        while test.S != None:
-            test = self.placeNext(test)
-            self.forwardCheck(test)
-
-        self.printResults(test)
-        Board.clearBoard
         
-        print("\ntotal number of backtracks before this solution was found: ")
-        print("Forward Checking: ", self.fCounter)
-        print("Directional Look Ahead: ", self.dCounter)
+        firstTile = self.getTile(int(start[1]) - 1, num, Board)
+        firstTest = firstTile
+        self.setTile(firstTile, value.queen)
 
-        #directional arc implementation
-        # test2 = firstTest
-        # self.setTile(test2, value.queen)
-        # self.check(test2)
-        # while test2 != None and test2.S != None:
-        #     #self.check(test)
-        #     #Board.printBoard()
-        #     test2 = self.directionalArc(test2)
+        ##### forward checking implementation ################################################################
+        while firstTile != self.EndTile:
+            self.forwardCheck(firstTile)
+            while firstTile.S != None:
+                firstTile = self.placeNext(firstTile)
+                if tile is not self.EndTile:
+                    self.forwardCheck(firstTile)
 
-        #self.boards[0].printBoard()
-        #self.results[1].print()
-        #self.boards[1].printBoard()
-        #self.printBoard(self.boards[0])
-        #self.printBoard(self.boards[1])
+            copyy = copy.copy(board)
+            self.boards.append(copyy)
+            self.results.append(self.getPositions(firstTile))
+            self.ForwardCounts.append(self.fCounter)
+            self.fCounter = 0
+            firstTile = self.backtrack(firstTile)
+        
+        Board.clearBoard()
+        firstTile = firstTest #reset first tile
 
-    def printResults(self, tile):
+        ##### directional arc implementation ################################
+        while firstTile != self.EndTile:
+            self.setTile(firstTile, value.queen)
+            self.check(firstTile)
+            while firstTile != None and firstTile.S != None:
+                firstTile = self.directionalArc(firstTile)
+            
+            #self.results.append(self.getPositions(firstTile))
+            self.DARCCounts.append(self.dCounter)
+            self.dCounter = 0
+            firstTile = self.backtrack(firstTile)
+        
+        self.printResults()
+        Board.clearBoard()
+
+    def getFinalCount(self, items):
+        count = 0
+        for item in items:
+            count = count + item
+        return count
+
+    def printResults(self):
+        i = 0
+        for solution in self.results:
+            if len(solution) != 8:
+                break
+            print("\nSolution 1 with Queen 1 in Position " + str(solution[0][0]) + str(solution[0][1]) + ":")
+            print("\nThe positions of the Queens are:")
+            #self.boards[i].printBoard(self.boards[i])
+            for item in solution:
+                print("Row: " + str(item[0]) + str(item[1]))
+
+            print("\n\ntotal number of backtracks before this solution was found: ")
+            print("Forward Checking: ", self.ForwardCounts[i])
+            if len(self.DARCCounts) <= i:
+                print("Directional Look Ahead: no solution")
+            else:
+                print("Directional Look Ahead: ", self.DARCCounts[i])
+            i += 1
+        print("Total numbers of backtracks before this solution was found:")
+        print("Forward Checking: " + str(self.getFinalCount(self.ForwardCounts)))
+        print("Directional Look Ahead: " + str(self.getFinalCount(self.DARCCounts)))
+
+    def getPositions(self, tile):
+        result = []
+        if tile == None:
+            return []
+        
         while tile != None:
-            print("Row: " + str(tile.position[0] + 1) + str(tile.position[1]))
+            result.append((tile.position[0] + 1, tile.position[1]))
             tile = tile.previous
+        result.reverse()
+        return result
 
     def getTile(self, row, col, board):
         return board.tiles[row][col]
@@ -84,62 +123,39 @@ class main():
         self.check(tile)
 
     def check(self, tile):
-        #left diagonal
-        tempTile = tile.SW
-        while tempTile != None:
-            tempTile.setTile(value.inValid)
-            if tempTile.previous == None: 
-               tempTile.previous = tile # this will allow us to prevent overwriting during back tracking
-            tempTile = tempTile.SW
-
-        #Down
-        tempTile = tile.S
-        while tempTile != None:
-            tempTile.setTile(value.inValid)
-            if tempTile.previous == None:
-                tempTile.previous = tile 
-            tempTile = tempTile.S
-
-        #right diagonal  
-        tempTile = tile.SE
-        while tempTile != None:
-            tempTile.setTile(value.inValid)
-            if tempTile.previous == None:
-                tempTile.previous = tile 
-            tempTile = tempTile.SE
+        directions = [tile.SW, tile.S, tile.SE]
+        
+        for direction in directions:
+            tempTile = direction
+            while tempTile is not None:
+                tempTile.setTile(value.inValid)
+                if tempTile.previous is None: 
+                    tile.children.append(tempTile)
+                    tempTile.previous = tile # this will allow us to prevent overwriting during back tracking
+                if (direction == tile.SW):
+                    tempTile = tempTile.SW
+                elif (direction == tile.S):
+                    tempTile = tempTile.S
+                else:
+                    tempTile = tempTile.SE
 
     def backtrack(self, tile):
         #does the oppisate of place next removing X from any tiles related to the backtracked tile
+        if tile.N == None:
+            #no more solutions
+            return self.EndTile
         self.clear(tile)
         tile.setTile(value.inValid)
-        for child in tile.children:
-            child.value = value.avail
+        tile.previous.children.append(tile)
         tile = tile.previous
         return tile
 
     def clear(self, tile):
-        tempTile = tile.SW
-        while tempTile != None:
-            if tempTile.previous == tile:
-                tempTile.setTile(value.avail)
-                tempTile.previous = None
-            tempTile = tempTile.SW
-
-        #down
-        tempTile = tile.S
-        while tempTile != None:
-            if tempTile.previous == tile:
-                tempTile.setTile(value.avail)
-                tempTile.previous = None
-            tempTile = tempTile.S
-
-        #right diagonal
-        tempTile = tile.SE
-        while tempTile != None:
-            if tempTile.previous == tile:
-                tempTile.setTile(value.avail)
-                tempTile.previous = None
-            tempTile = tempTile.SE
+        for child in tile.children:
+            child.value = value.avail
+            child.previous = None
+            self.clear(child)
+        tile.children.clear()
 
     def directionalArc(self, tile):
         #if tile.position[0] == 7 and tile.value == value.queen:
@@ -169,26 +185,25 @@ class main():
 
     def checkIfValid(self, tile):
         self.check(tile)
+        tempTile = tile
         tile = self.getStartRow(tile)
 
         while tile.E != None:
             if tile.value == value.avail:
-                self.clear(tile)
+                self.clear(tempTile)
                 return True
             tile = tile.E
 
-        self.clear(tile)
+        self.clear(tempTile)
         return False
     
     def placeNext(self, tile):
         flag = True
         if tile.S == None:
-            print("\n")
-            print("Solution Found!")
             return tile #tile
         
         tempTile = tile.S
-        tempTile.previous = tile
+        #tempTile.previous = tile
         while tempTile.W != None: #gets to the left of the next row
             tempTile = tempTile.W
 
@@ -196,6 +211,7 @@ class main():
             if tempTile.value == value.avail: #places a queen in the first available spot
                 tempTile.setTile(value.queen)
                 tempTile.previous = tile
+                tile.children.append(tempTile)
                 return tempTile
             else:
                 if tempTile.E == None: #if there are no avail tiles then backtrack is called
