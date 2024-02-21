@@ -2,7 +2,7 @@ from Tile import tile
 from Tile import value
 from Board import board
 import copy
-
+#written by conortoole to solve the 8Queens puzzle
 class main():
 
     def __init__(self):
@@ -71,7 +71,7 @@ class main():
         self.printResults()
         Board.clearBoard()
 
-    def getFinalCount(self, items):
+    def getFinalCount(self, items): #adds up all the forward or direcitonal backtracks
         count = 0
         for item in items:
             count = count + item
@@ -99,7 +99,8 @@ class main():
         print("Forward Checking: " + str(self.getFinalCount(self.ForwardCounts)))
         print("Directional Look Ahead: " + str(self.getFinalCount(self.DARCCounts)))
 
-    def getPositions(self, tile):
+    def getPositions(self, tile): #returns the positions of the final results
+        #this works by taking the final node and iterating through its parents 
         result = []
         if tile == None:
             return []
@@ -117,12 +118,13 @@ class main():
         tile.setTile(value)
 
     def forwardCheck(self, tile):
-        #if tile.position[0] == 7 and tile.value == value.queen:
         if tile.S == None:
             return
         self.check(tile)
 
     def check(self, tile):
+        #this works by moving in the 3 directions specified and updating the value of the tiles
+        #it also sets all tiles parent to the original tile unless that tile already has a parent
         directions = [tile.SW, tile.S, tile.SE]
         
         for direction in directions:
@@ -151,6 +153,8 @@ class main():
         return tile
 
     def clear(self, tile):
+        #takes advantage of the children a recursively removes all of themselves
+        #as it removes them it updates their status
         for child in tile.children:
             child.value = value.avail
             child.previous = None
@@ -158,7 +162,6 @@ class main():
         tile.children.clear()
 
     def directionalArc(self, tile):
-        #if tile.position[0] == 7 and tile.value == value.queen:
         if tile.S == None:
             return tile
         
@@ -166,9 +169,9 @@ class main():
             
         while tempTile is not None:
             if tempTile.value == value.avail:
-                availableMove = self.checkIfValid(tempTile)
+                availableMove = self.checkIfValid(tempTile) #check if placing a queen will close a row
 
-                if availableMove: #places a queen in the first available spot
+                if availableMove: #places a queen in the first available spot 
                     tempTile.value = value.queen
                     tempTile.previous = tile
                     tile.children.append(tempTile)
@@ -183,7 +186,7 @@ class main():
                 tempTile = tempTile.E #else move to the next tile to the right
         return tile
 
-    def checkIfValid(self, tile):
+    def checkIfValid(self, tile): #goes to the next row and checks if their are still valid solutions after placing a queen
         self.check(tile)
         tempTile = tile
         tile = self.getStartRow(tile)
@@ -221,7 +224,7 @@ class main():
                 else:
                     tempTile = tempTile.E #else move to the next tile to the right
 
-    def getStartRow(self, tile):
+    def getStartRow(self, tile):#get the far left tile in the next row
         if tile.S == None:
             return tile
         

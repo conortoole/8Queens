@@ -1,6 +1,7 @@
 from enum import Enum
 
-class tile():
+class tile(): 
+    #stores the nodes/tiles children, neighbors, and parent(previous)
     def __init__(self, position, N, E, S, W, NE, SE, SW, NW, previous):
         self.value = value.avail
         self.N = N
@@ -18,6 +19,7 @@ class tile():
     def setTile(self, value):
         self.value = value
 
+#used for determining a tiles status
 class value(Enum):
     queen = 1
     avail = 2

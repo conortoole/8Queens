@@ -49,7 +49,7 @@ class board():
                     print("[X]", end="")
         print("\n")
 
-    def clearBoard(self):
+    def clearBoard(self): #removes the status and children of all tiles but does not remove their neighbors
         for row in self.tiles:
             for item in row:
                 item.value = value.avail
