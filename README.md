@@ -1,4 +1,4 @@
-# select a starting position from row 1 (A1, B1 etc)a1
+select a starting position from row 1 (A1, B1 etc)a1
 
 Solution 1 with Queen 1 in Position 1A:
 
